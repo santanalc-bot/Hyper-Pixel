@@ -1,0 +1,457 @@
+
+/* zera margem e padding de todos os elementos
+ e faz border-box incluir borda e padding dentro 
+ da largura/altura */
+
+*{
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+/* faz a página rolar suavemente em vez de saltar direto
+    quando você clica num link âncora*/
+
+
+html{
+    scroll-behavior: smooth; 
+}
+
+/*define o visual global da página sendo fundo quase preto,
+texto branco, fonte Arial com fallbacks
+e altura de linha 1.6 */
+
+body{
+    background: #050505; 
+    color: white; 
+    font-family: Arial, Helvetica, sans-serif; 
+    line-height: 1.6; 
+}
+
+/* barra fixa no topo, largura total, sempre acima do resto;
+flex põe logo à esquerda e menu à direita;
+fundo preto 75% com desfoque e linha ciano embaixo*/
+
+header{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000; 
+
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+
+    padding: 20px 10%; 
+
+    background: rgba(0, 0, 0, 0.75); 
+    backdrop-filter: blur(10px); 
+
+    border-bottom: 1px solid rgba(0,255,255,0.15); 
+}
+
+/*logo estiliza a marca: fonte 1.7rem em negrito, 
+texto ciano com letras espaçadas e um brilho neon ao redor*/
+
+.logo{
+    font-size: 1.7rem; 
+    font-weight: bold; 
+    letter-spacing: 2px; 
+    color: #00ffff; 
+    text-shadow: 0 0 10px #00ffff; 
+}
+
+/*nav ul deixa a lista do menu na horizontal: flex em linha,
+sem marcadores e com 30px de espaço entre cada item. */
+
+nav ul{
+    display: flex; 
+    list-style: none; 
+    gap: 30px;
+}
+
+/*nav a estiliza os links do menu: brancos, sem sublinhado, em negrito, e com transição de 0.3s 
+ou seja, qualquer mudança de cor ou efeito no hover vai acontecer suavemente.*/
+
+nav a{
+    color: white; 
+    text-decoration: none; 
+    transition: 0.3s; 
+    font-weight: bold;
+}
+
+/*nav a:hover faz os links ficarem ciano quando o mouse passa por cima*/
+
+nav a:hover{
+    color: #00ffff; 
+}
+
+/*seção de abertura com altura mínima da tela inteira (100vh),
+conteúdo centralizado nos dois eixos; 
+fundo é um brilho ciano circular no topo sobre um gradiente escuro vertical.*/
+
+.hero{
+    position: relative;
+    min-height: 100vh; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 10%;
+    background:
+    radial-gradient(circle at top, rgba(0,255,255,0.15), transparent 40%),
+    linear-gradient(to bottom, #050505, #0c0c0c); 
+}
+
+/*camada decorativa sobre o hero com linhas verticais sutis a cada 60px, sem capturar cliques*/
+
+.hero-overlay{
+    position: absolute;
+    inset: 0;
+    background:
+    repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,0.02),
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 60px
+    );
+    pointer-events: none; 
+}
+
+/*caixa do conteúdo do hero: position: relative (fica acima do overlay) e largura máxima de 900px.*/
+
+.hero-content{
+    position: relative;
+    max-width: 900px; 
+}
+
+/*texto ciano, pequeno, com letras bem espaçadas.*/
+
+.subtitle{
+    color: #00ffff; 
+    letter-spacing: 4px; 
+    font-size: 0.9rem; 
+}
+
+/*título grande (5rem) com linhas próximas (1.1),
+20px de margem em cima/embaixo e brilho ciano ao redor do texto. */
+
+.hero h1{
+    font-size: 5rem; 
+    line-height: 1.1;
+    margin: 20px 0;
+    text-shadow: 0 0 20px rgba(0,255,255,0.7); 
+}
+
+/*parágrafo de apoio: 1.2rem, cinza claro e 35px de espaço abaixo*/
+
+.hero p{
+    font-size: 1.2rem;
+    color: #cccccc; 
+    margin-bottom: 35px;
+}
+
+/*estilo único para todos os botões do site: fundo ciano, texto preto em negrito, sem sublinhado,
+ cantos arredondados de 12px, sem borda, cursor de mãozinha e transição suave de 0.3s em qualquer efeito. */
+
+.btn,
+.card-btn,
+button{
+    display: inline-block;
+    background: #00ffff; 
+    color: black; 
+    text-decoration: none;
+    font-weight: bold;
+    padding: 14px 30px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+/*no hover os botões sobem 3px e ganham um brilho ciano ao redor.
+Combinado com o transition: 0.3s do bloco anterior, o movimento é suave */
+
+.btn:hover,
+.card-btn:hover,
+button:hover{
+    transform: translateY(-3px); 
+    box-shadow: 0 0 25px #00ffff; 
+}
+
+/*as três seções recebem o mesmo espaçamento interno: 100px em cima/embaixo e 10% nas laterais. */
+
+.games,
+.about,
+.contact{
+    padding: 100px 10%; 
+}
+
+/*título de cada seção: centralizado e com 60px de espaço abaixo.*/
+
+.section-title{
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+/*título principal de cada seção: 2.8rem, ciano e 10px de espaço abaixo.*/
+
+.section-title h2{
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    color: #00ffff; 
+}
+
+/*parágrafo de apoio sob o título da seção: cinza claro*/
+
+.section-title p{
+    color: #bbbbbb; 
+}
+
+/*grade responsiva de cards: colunas que se ajustam sozinhas,
+cada uma com no mínimo 320px e no máximo a fração igual do espaço (1fr);
+40px de espaço entre os cards. Se a tela estreitar, o número de colunas cai automaticamente.*/
+
+.games-container{
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    gap: 40px; 
+}
+
+/*card escuro (#111111) com cantos bem arredondados (22px), borda ciano sutil,
+overflow: hidden para a imagem respeitar o arredondamento, sombra ciano leve 
+e transição de 0.3s para o hover.*/
+
+.game-card{
+    background: #111111; 
+    border: 1px solid rgba(0,255,255,0.15); 
+    border-radius: 22px; 
+    overflow: hidden; 
+    transition: 0.3s ease; 
+    box-shadow: 0 0 20px rgba(0,255,255,0.05); 
+}
+
+/*no hover o card sobe 10px e a sombra ciano fica mais forte (de 0.05 para 0.35 de opacidade),
+ criando efeito de elevação. */
+
+.game-card:hover{
+    transform: translateY(-10px); 
+    box-shadow: 0 0 25px rgba(0,255,255,0.35); 
+}
+
+/*imagem do card: ocupa 100% da largura, com altura fixa de 230px e 
+object-fit: cover para preencher o espaço sem esticar.*/
+
+.game-card img{
+    width: 100%; 
+    height: 230px; 
+    object-fit: cover; 
+}
+
+/*área interna do card com 25px de espaçamento em todos os lados.*/
+
+.card-content{
+    padding: 25px; 
+}
+
+/*faixa de etiquetas do card: em linha, 10px entre elas,
+ quebrando para a linha de baixo se não couberem, e 20px de espaço abaixo. */
+
+.tags{
+    display: flex; 
+    gap: 10px; 
+    flex-wrap: wrap; 
+    margin-bottom: 20px; 
+}
+
+/*cada etiqueta: fundo ciano suave, texto ciano, formato de pílula, fonte pequena de 0.8rem. */
+
+.tags span{
+    background: rgba(0,255,255,0.12); 
+    color: #00ffff; 
+    padding: 6px 12px; 
+    border-radius: 30px; 
+    font-size: 0.8rem; 
+}
+
+/*título do card: 1.8rem e 15px de espaço abaixo.*/
+
+.game-card h3{
+    margin-bottom: 15px; 
+    font-size: 1.8rem; 
+}
+
+/*descrição do card: cinza claro e 25px de espaço abaixo, antes do botão. */
+
+.game-card p{
+    color: #cccccc; 
+    margin-bottom: 25px; 
+}
+
+/*centraliza todo o conteúdo da seção "sobre"*/
+
+.about{
+    text-align: center; 
+}
+
+/*parágrafo da seção "sobre": largura máxima de 900px,
+centralizado horizontalmente pelo margin: auto, texto cinza claro em 1.1rem. */
+
+.about p{
+    max-width: 900px; 
+    margin: auto; 
+    color: #cccccc; 
+    font-size: 1.1rem; 
+}
+
+/*faixa rolável na horizontal, com 30px entre os cards,
+rolagem horizontal suave e 30px/10px de espaçamento interno.
+Serve para a equipe deslizar lateralmente em vez de quebrar linha. */
+
+.team-carousel{
+    display:flex; 
+    gap:30px; 
+    overflow-x:auto; 
+    scroll-behavior:smooth; 
+    padding:30px 10px; 
+}
+
+/*estiliza a barra de rolagem horizontal do carrossel: altura de 10px. Os demais navegadores ignoram 
+essa regra. */
+
+.team-carousel::-webkit-scrollbar{
+    height:10px; 
+}
+
+/*a parte que se arrasta da barra de rolagem fica ciano e arredondada. */
+
+.team-carousel::-webkit-scrollbar-thumb{
+    background:#00cfff; 
+    border-radius:10px; 
+}
+
+/* largura mínima de 320px, fundo escuro, cantos arredondados,
+20px de espaçamento interno, texto centralizado e transição de 0.3s.
+flex-shrink: 0 impede que ele encolha dentro do carrossel*/
+
+.member-card{
+    min-width:320px; 
+    background:#1c1c1c; 
+    border-radius:20px; 
+    padding:20px; 
+    flex-shrink:0; 
+    text-align:center; 
+    transition:.3s; 
+}
+
+/*no hover o card do membro sobe 8px e ganha uma sombra azul-ciano difusa, dando efeito de elevação */
+
+.member-card:hover{
+    transform:translateY(-8px); 
+    box-shadow:0 10px 30px rgba(0,207,255,.4); 
+}
+
+/*foto do membro em formato circular: 180x180px, centralizada,
+ com overflow: hidden, borda ciano de 5px e 20px de espaço abaixo. */
+
+.photo{
+    width:180px; 
+    height:180px; 
+    margin:auto; 
+    border-radius:50%; 
+    overflow:hidden; 
+    border:5px solid #00cfff; 
+    margin-bottom:20px; 
+}
+
+/*a imagem dentro do círculo: ocupa 100% da largura e da altura do .photo,
+com object-fit: cover para preencher o círculo sem distorcer.*/
+
+.photo img{
+    width:100%; 
+    height:100%; 
+    object-fit:cover; 
+}
+
+/*bloco de informação dentro do card de membro: fundo cinza escuro,
+15px de espaçamento interno, cantos arredondados e 15px de espaço acima. */
+
+.info-box{
+    background:#2a2a2a; 
+    padding:15px; 
+    border-radius:12px; 
+    margin-top:15px; 
+}
+
+/*títulos dentro do bloco de informação: texto azul-ciano e 8px de espaço abaixo.*/
+
+.info-box h3,
+.info-box h4{
+    color:#00cfff; 
+    margin-bottom:8px; 
+}
+
+/*parágrafo dentro do bloco de informação: texto branco com altura de linha 1.5*/
+
+.info-box p{
+    color:#fff; 
+    line-height:1.5; 
+}
+
+/*30px de espaçamento interno, texto centralizado,
+uma linha divisória sutil no topo e texto cinza */
+
+footer{
+    padding: 30px; 
+    text-align: center; 
+    border-top: 1px solid rgba(255,255,255,0.08); 
+    color: #999999; 
+}
+
+/*ajustes para telas até 768px (celular/tablet). 
+Dentro dele: header empilha (logo em cima, menu embaixo) com 20px de espaço;
+menu quebra linha e centraliza; título do hero cai para 2.8rem;
+títulos de seção caem para 2rem. */
+
+@media(max-width: 768px){
+    header{
+        flex-direction: column; 
+        gap: 20px; 
+    }
+    nav ul{
+        flex-wrap: wrap; 
+        justify-content: center; 
+    }
+    .hero h1{
+        font-size: 2.8rem;
+    }
+    .section-title h2{
+        font-size: 2rem; 
+    }
+}
+
+/*botão fixo no canto inferior direito (30px da borda),
+circular de 60x60px, com ícone/texto centralizado via flex.
+Fundo em gradiente ciano, texto branco grande, cursor de clique,
+sombra roxa difusa e transição suave de 0.35s. */
+
+#btnTopo{
+    position: fixed; 
+    bottom: 30px;
+    right: 30px; 
+    width: 60px; 
+    height: 60px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    border: none; 
+    border-radius: 50%; 
+    background: linear-gradient(135deg, #00ffff,rgba(0,255,255,0.4) ); 
+    color: #fff; 
+    font-size: 22px; 
+    cursor: pointer; 
+    box-shadow: 0 10px 25px rgba(109,40,217,.4);
+    transition: all .35s ease; 
+    opacity: 1; 
+}

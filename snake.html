@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Snake Infinity</title>
+
+<style>
+
+/* zera margem e padding de tudo, border-box no tamanho e fonte padrão Arial. 
+É o mesmo bloco que você já mandou antes no quiz. */
+
+*{
+    margin:0; 
+    padding:0; 
+    box-sizing:border-box; 
+    font-family:Arial, Helvetica, sans-serif; 
+}
+
+/* fundo cinza-escuro, texto branco centralizado, altura mínima da tela inteira e 30px de espaçamento interno. */
+
+body{
+    background:#1b1b1b; 
+    color:white;
+    text-align:center;
+    min-height:100vh; 
+    padding:30px; 
+}
+
+/* título com 15px de espaço abaixo e cor verde neon. */
+
+h1{
+    margin-bottom:15px; 
+    color:#00ff99; 
+}
+
+/* faixa de indicadores no topo do jogo: itens em linha, centralizados, com 30px entre eles,
+quebrando para a linha de baixo se faltar espaço e 20px de margem abaixo. */
+
+#painel{
+    display:flex;
+    justify-content:center; 
+    gap:30px; 
+    margin-bottom:20px; 
+    flex-wrap:wrap; 
+}
+
+/* cartão de indicador: fundo cinza-escuro, 15px/25px de espaçamento interno, 
+cantos arredondados de 12px e sombra escura ao redor. */
+
+.card{
+    background:#2c2c2c; 
+    padding:15px 25px; 
+    border-radius:12px; 
+    box-shadow:0 0 15px rgba(0,0,0,.5);
+}
+
+/* a tela do jogo: fundo preto, borda verde neon de 4px e cantos arredondados de 10px. */
+
+canvas{
+    background:#101010; 
+    border:4px solid #00ff99; 
+    border-radius:10px; 
+}
+
+/* estilo global dos botões deste jogo: 20px de espaço acima, 12px/30px de espaçamento interno, sem borda, 
+cantos arredondados de 8px, fundo verde neon, texto preto em negrito de 17px, cursor de clique e transição de 0.3s.*/
+
+button{
+    margin-top:20px; 
+    padding:12px 30px; 
+    border:none; 
+    border-radius:8px;
+    background:#00ff99; 
+    color:black; 
+    font-size:17px; 
+    cursor:pointer; 
+    font-weight:bold; 
+    transition:.3s; 
+}
+
+/* no hover os botões aumentam 8%, combinado com a transição de 0.3s do bloco anterior para o crescimento ser suave. */
+
+button:hover{
+    transform:scale(1.08);
+}
+
+/* a caixa do quiz no jogo da cobrinha: nasce escondida, largura fixa de 420px limitada a 90% da tela,
+fundo cinza-escuro, 20px de espaçamento interno, cantos arredondados de 15px e 25px de espaço acima,
+auto centraliza na horizontal. */
+
+#quiz{
+    display:none; 
+    margin:auto; 
+    margin-top:25px; 
+    width:420px; 
+    max-width:90%; 
+    background:#2a2a2a; 
+    padding:20px; 
+    border-radius:15px; 
+}
+
+/* a palavra exibida no quiz: fonte grande de 34px, texto amarelo e 20px de margem externa em todos os lados. */
+
+#word{
+    font-size:34px; 
+    color:yellow; 
+    margin:20px; 
+}
+
+/* campo de texto do quiz: largura fixa de 220px, 10px de espaçamento interno, fonte de 18px e texto centralizado. */
+
+input{
+    width:220px; 
+    padding:10px; 
+    font-size:18px; 
+    text-align:center; 
+}
+
+/* botão fixo no canto superior esquerdo: fundo verde neon, texto preto em negrito de 16px, 
+12px/22px de espaçamento interno, cantos arredondados de 8px, sem borda, 
+cursor de clique e z-index: 999 para ficar acima de tudo. */
+
+.btn-voltar{
+    position:fixed; 
+    top:20px; 
+    left:20px; 
+    padding:12px 22px; 
+    background:#00ff99; 
+    color:#000; 
+    border:none; 
+    border-radius:8px; 
+    font-size:16px;
+    font-weight:bold; 
+    cursor:pointer; 
+    z-index:999; 
+}
+
+/* no hover o botão aumenta 5%. */
+
+.btn-voltar:hover{
+    transform:scale(1.05);
+}
+
+
+</style>
+
+</head>
+<body>
+<button class="btn-voltar" onclick="window.location.href='index.html'">⬅ Voltar ao Início</button>
+
+<h1>🐍 Minhoca Infinita</h1>
+
+<div id="painel">
+
+<div class="card">
+Pontos
+<h2 id="p">0</h2>
+</div>
+
+<div class="card">
+Tamanho
+<h2 id="size">1</h2>
+</div>
+
+<div class="card">
+Velocidade
+<h2 id="vel">150</h2>
+</div>
+
+</div>
+
+<canvas id="c" width="400" height="400"></canvas>
+
+<br>
+
+<button id="start">Começar</button>
+
+<button id="reset">Reiniciar</button>
+
+<div id="quiz">
+
+<h2>Descubra a Palavra</h2>
+
+<div id="word"></div>
+
+<input id="ans">
+
+<br>
+
+<button id="ok">
+
+Responder
+
+</button>
+
+</div>
+
+<script>
+
+const canvas=document.getElementById("c"); // Seleciona o elemento canvas
+const ctx=canvas.getContext("2d"); // Obtém o contexto 2D para desenhar
+
+const g=20; // Tamanho da grade (cada célula 20px)
+
+let snake; // Array que representa a cobra
+let dir; // Direção atual da cobra
+let food; // Posição da comida
+let points; // Pontuação do jogador
+let paused=true; // Estado de pausa
+let speed=150; // Velocidade inicial (ms por movimento)
+let timer; // Intervalo do loop principal
+
+const palavras=[ // Lista de palavras para o quiz
+"CASA","BOLA","GATO","PATO","LIVRO","MESA","JANELA","ESCOLA","FUTEBOL","CARRO",
+"TECLADO","MONITOR","LAPIS","CADEIRA","COELHO","CACHORRO","COPO","CELULAR","AGUA","GARRAFA"
+];
+
+// recebe uma string, quebra em letras, embaralha com o algoritmo Fisher-Yates e devolve a palavra remontada. 
+// Diferente do embaralhar do quiz, que recebia e devolvia arrays.
+
+function embaralhar(txt){ 
+    let letras=txt.split("");
+    for(let i=letras.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [letras[i],letras[j]]=[letras[j],letras[i]];
+    }
+    return letras.join("");
+}
+
+// reseta a cobrinha, zera pontos, velocidade 150, atualiza os três indicadores na tela, começa pausado, 
+// gera a comida com spawn() e desenha o quadro com draw().
+
+function iniciar(){ // Inicializa o jogo
+    snake=[{x:10,y:10}]; // Posição inicial da cobra
+    dir={x:1,y:0}; // Direção inicial (direita)
+    points=0; // Pontuação zerada
+    speed=150; // Velocidade padrão
+    p.textContent=0; // Atualiza pontuação na tela
+    vel.textContent=speed; // Mostra velocidade
+    size.textContent=1; // Mostra tamanho inicial da cobra
+    paused=true; // Jogo começa pausado
+    spawn(); // Gera comida
+    draw(); // Desenha cenário inicial
+}
+
+// sorteia uma nova comida numa posição aleatória do grid 20x20 e repete o sorteio enquanto ela cair 
+// em cima de algum segmento da cobra, garantindo que a comida nunca apareça dentro do corpo.
+
+function spawn(){ // Gera nova comida
+    do{
+        food={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};
+    }while(snake.some(s=>s.x==food.x && s.y==food.y)); // Evita gerar comida em cima da cobra
+}
+
+// limpa qualquer timer anterior e cria um novo setInterval que chama loop a cada speed milissegundos. 
+// É o que faz a cobra andar sozinha.
+
+function startGame(){ 
+    clearInterval(timer);
+    timer=setInterval(loop,speed);
+}
+
+// a cada speed ms: sai se pausado; move a cabeça somando dir e atravessa paredes; se bate no próprio corpo, 
+// "Game Over!" e pausa; adiciona a cabeça nova e, se comeu a comida, soma 10 pontos, chama askWord() e gera outra 
+// comida — se não, remove o último segmento; atualiza o tamanho e redesenha.
+
+function loop(){ // Loop principal do jogo
+    if(paused) return; // Se pausado, não faz nada
+    let head={x:snake[0].x+dir.x,y:snake[0].y+dir.y}; // Nova posição da cabeça
+
+    // Atravessar paredes
+    if(head.x<0) head.x=19;
+    if(head.x>19) head.x=0;
+    if(head.y<0) head.y=19;
+    if(head.y>19) head.y=0;
+
+    // Colisão com o próprio corpo
+    if(snake.some(s=>s.x===head.x && s.y===head.y)){
+        alert("Game Over!");
+        paused=true;
+        return;
+    }
+
+    snake.unshift(head); // Adiciona nova cabeça
+
+    if(head.x===food.x && head.y===food.y){ // Se comeu a comida
+        points+=10; // Ganha pontos
+        p.textContent=points; // Atualiza pontuação
+        askWord(); // Chama quiz
+        spawn(); // Gera nova comida
+    }else{
+        snake.pop(); // Remove último bloco se não comeu
+    }
+
+    size.textContent=snake.length; // Atualiza tamanho da cobra
+    draw(); // Redesenha cenário
+}
+
+// cada parte é um quadrado de g pixels, com g = 20 — daí a grade de 20px bater com o grid 20x20 do spawn() 
+// e o arc da comida usar +10 pra centralizar. Vale registrar de onde vem o g.
+
+function draw(){ // Função para desenhar cenário
+    ctx.fillStyle="#101010"; // Fundo preto
+    ctx.fillRect(0,0,400,400);
+
+    // Grade
+    ctx.strokeStyle="#222";
+    for(let i=0;i<=400;i+=20){
+        ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,400); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(400,i); ctx.stroke();
+    }
+
+    // Comida
+    ctx.fillStyle="red";
+    ctx.beginPath();
+    ctx.arc(food.x*g+10,food.y*g+10,8,0,Math.PI*2);
+    ctx.fill();
+
+    // Cobra
+    snake.forEach((parte,index)=>{
+        if(index===0){ // Cabeça
+            ctx.fillStyle="#00ff00";
+            ctx.fillRect(parte.x*g,parte.y*g,g,g);
+            // Olhos
+            ctx.fillStyle="black";
+            ctx.beginPath();
+            ctx.arc(parte.x*g+6,parte.y*g+6,2,0,Math.PI*2);
+            ctx.arc(parte.x*g+14,parte.y*g+6,2,0,Math.PI*2);
+            ctx.fill();
+        }else{ // Corpo
+            ctx.fillStyle="#00aa00";
+            ctx.fillRect(parte.x*g,parte.y*g,g,g);
+        }
+    });
+}
+
+// o controle da cobrinha pelas setas/WASD: e.key vira minúsculo e cada tecla define o vetor dir. 
+// As condições dir.y !== 1 e afins impedem a inversão de 180° — ou seja, com a cobra indo para a direita, 
+// "A" (esquerda) é ignorado, evitando que ela se choque contra o próprio corpo.
+
+document.addEventListener("keydown",(e)=>{ // Controle da cobra
+    let tecla=e.key.toLowerCase();
+    if(tecla==="w" && dir.y!==1) dir={x:0,y:-1}; // Cima
+    if(tecla==="s" && dir.y!==-1) dir={x:0,y:1}; // Baixo
+    if(tecla==="a" && dir.x!==1) dir={x:-1,y:0}; // Esquerda
+    if(tecla==="d" && dir.x!==-1) dir={x:1,y:0}; // Direita
+});
+
+// abre o quiz ao comer: pausa o jogo, sorteia uma palavra, reembaralha até sair diferente do original, 
+// mostra a versão embaralhada no #word, limpa e foca o input e exibe o #quiz.
+// O timer continua rodando em segundo plano, mas o if(paused) return no loop() o mantém inofensivo. 
+// Falta o trecho que despausa após a resposta.
+
+let palavraAtual=""; // Palavra correta do quiz
+
+function askWord(){ // Exibe quiz
+    paused=true;
+    palavraAtual=palavras[Math.floor(Math.random()*palavras.length)];
+    let embaralhada=palavraAtual;
+    while(embaralhada===palavraAtual){ embaralhada=embaralhar(palavraAtual); }
+    word.textContent=embaralhada; // Mostra palavra embaralhada
+    ans.value=""; // Limpa input
+    quiz.style.display="block"; // Mostra quiz
+    ans.focus(); // Foca no input
+}
+
+// Fecha o ciclo do jogo e responde a pendência que eu tinha apontado: o paused = false aqui é o que devolve o jogo. 
+// Um detalhe — quando acerta, o startGame() só é chamado se a velocidade mudou; nas demais vezes o timer antigo 
+// continua valendo, o que funciona porque ele nunca foi parado.
+
+ok.onclick=function(){ // Botão confirmar resposta
+    if(ans.value.trim().toUpperCase()===palavraAtual){
+        alert("Parabéns! Você acertou!");
+        points+=20; // Pontos extras
+        // Cresce mais 3 blocos
+        for(let i=0;i<3;i++){ snake.push({...snake[snake.length-1]}); }
+        // Aumenta a velocidade
+        if(speed>60){
+            speed-=5;
+            vel.textContent=speed;
+            startGame();
+        }
+    }else{
+        alert("Resposta errada!\nA palavra era: "+palavraAtual);
+        points=Math.max(0,points-5); // Penaliza pontos
+    }
+    p.textContent=points; // Atualiza pontuação
+    size.textContent=snake.length; // Atualiza tamanho
+    quiz.style.display="none"; // Oculta quiz
+    paused=false; // Continua jogo
+    draw(); // Redesenha
+};
+
+// atalho do quiz: se o jogador apertar Enter no campo de resposta, o código dispara ok.click(), 
+// que é o mesmo que clicar no botão de confirmar. Evita ter que tirar a mão do teclado.
+
+ans.addEventListener("keydown",function(e){ // Permite responder com Enter
+    if(e.key==="Enter"){ ok.click(); }
+});
+
+// o botão "Começar": despausa e chama startGame(), armando o setInterval que põe a cobra em movimento. 
+// É o par do iniciar(): ele monta o quadro parado, esse clique solta o jogo.
+
+start.onclick=function(){ // Botão começar
+    paused=false;
+    startGame();
+};
+
+// o botão "Reiniciar": para o timer antigo com clearInterval(timer) e chama iniciar(), 
+// que remonta tudo do zero e redesenha o quadro parado, esperando o "Começar".
+
+reset.onclick=function(){ // Botão reiniciar
+    clearInterval(timer);
+    iniciar();
+};
+
+iniciar(); // Inicializa jogo automaticamente
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quiz de Bandeiras</title>
+
+<style>
+
+/* Ele atinge todos os elementos da página, por causa do seletor. */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+/* fundo em gradiente diagonal azul-escuro, altura mínima da tela inteira,
+texto branco, 20px de respiro e conteúdo centralizado nos dois eixos. */
+
+body{
+
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    min-height:100vh;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+
+}
+
+/* caixa central do conteúdo: 800px de largura, fundo #1e293b, cantos arredondados de 20px, 
+30px de espaçamento interno e uma sombra escura difusa ao redor. */
+
+.container{
+
+    width:800px;
+    max-width:100%;
+    background:#1e293b;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 0 30px rgba(0,0,0,.5);
+
+}
+
+/* título centralizado com 25px de espaço abaixo. */
+
+h1{
+
+    text-align:center;
+    margin-bottom:25px;
+
+}
+
+/* barra de controles no topo da caixa: itens em linha, empurrados para as extremidades, com 10px entre eles,
+quebrando para a linha de baixo se faltar espaço, e 20px de margem abaixo. */
+
+.topo{
+
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+
+}
+
+/* cartão de estatística dentro da barra: cresce para ocupar o espaço disponível, com largura mínima de 120px,
+fundo #334155, 12px de  cantos arredondados, 15px de espaçamento interno, texto centralizado e fonte de 18px. */
+
+.card{
+
+    flex:1;
+    min-width:120px;
+    background:#334155;
+    border-radius:12px;
+    padding:15px;
+    text-align:center;
+    font-size:18px;
+
+}
+
+/* trilho da barra de progresso: largura total, 18px de altura, fundo #475569, 20px de cantos bem arredondados, 
+overflow: hidden para o preenchimento interno respeitar o arredondamento, e 25px de margem abaixo. */
+
+#barra{
+
+    width:100%;
+    height:18px;
+    background:#475569;
+    border-radius:20px;
+    overflow:hidden;
+    margin-bottom:25px;
+
+}
+
+/* a parte que preenche a barra de progresso: começa em 0% de largura, altura total do trilho,
+cor verde e transição de 0.5s. */
+
+#progresso{
+
+    width:0%;
+    height:100%;
+    background:#22c55e;
+    transition:.5s;
+
+}
+
+/* imagem centralizada na horizontal, preenche sem distorcer, cantos arredondados de 15px, 
+borda branca de 4px e brilho branco suave. */
+
+#bandeira{
+
+    display:block;
+    margin:auto;
+    width:260px;
+    height:170px;
+    object-fit:cover;
+    border-radius:15px;
+    border:4px solid white;
+    box-shadow:0 0 20px rgba(255,255,255,.2);
+
+}
+
+/* área das opções de resposta do quiz: 25px de espaço acima. */
+
+#opcoes{
+
+    margin-top:25px;
+
+}
+
+/* botão de alternativa: largura total, fundo #334155, texto branco de 17px, 
+14px de espaçamento interno, 10px de margem vertical, cantos arredondados de 10px, 
+cursor de clique e transição de 0.3s. */
+
+.opcao{
+
+    width:100%;
+    padding:14px;
+    margin:10px 0;
+    border:none;
+    border-radius:10px;
+    background:#334155;
+    color:white;
+    font-size:17px;
+    cursor:pointer;
+    transition:.3s;
+
+}
+
+/* no hover a alternativa fica um tom mais claro, dando retorno visual antes do clique. */
+
+.opcao:hover{
+
+    background:#475569;
+
+}
+
+/* marca a alternativa certa com fundo verde. */
+
+.correta{
+
+    background:#16a34a!important;
+
+}
+
+/* marca a alternativa errada com fundo vermelho. */
+
+.errada{
+
+    background:#dc2626!important;
+
+}
+
+/* área de texto onde aparece o resultado do quiz: centralizado, fonte de 22px, 20px de espaço acima
+e altura mínima de 30px. O min-height reserva espaço mesmo quando o texto está vazio,
+evitando que o layout "pule" ao mostrar o resultado. */
+
+#resultado{
+
+    margin-top:20px;
+    text-align:center;
+    font-size:22px;
+    min-height:30px;
+
+}
+
+/* botão de avançar do quiz: nasce escondido, centralizado horizontalmente, fundo azul, texto branco de 18px, 
+14px/30px de espaçamento interno, cantos arredondados e cursor de clique. */
+
+#proximo{
+
+    display:none;
+    margin:25px auto 0;
+    padding:14px 30px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+
+}
+
+/* no hover o botão escurece para um azul mais profundo, dando retorno visual antes do clique. */
+
+#proximo:hover{
+
+    background:#1d4ed8;
+
+}
+
+/* tela final do quiz: nasce escondida e centraliza o texto. É revelada via JS quando o quiz termina,
+substituindo a área de perguntas. */
+
+#fim{
+
+    display:none;
+    text-align:center;
+
+}
+
+/* botão da tela final: 25px de espaço acima, fundo verde, texto branco de 18px, 15px/30px de espaçamento interno,
+cantos arredondados e cursor de clique. */
+
+#fim button{
+
+    margin-top:25px;
+    padding:15px 30px;
+    border:none;
+    border-radius:10px;
+    background:#22c55e;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+
+}
+
+/* ajustes para telas até 700px: os cards do topo empilham na vertical e a bandeira passa a ocupar 100% da largura 
+com altura automática. */
+
+@media(max-width:700px){
+
+.topo{
+
+flex-direction:column;
+
+}
+
+#bandeira{
+
+width:100%;
+height:auto;
+
+}
+
+}
+
+
+.btn-voltar{position:fixed;top:20px;left:20px;padding:12px 22px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;transition:.3s;z-index:999}
+.btn-voltar:hover{background:#1d4ed8;transform:translateY(-2px)}
+
+</style>
+
+</head>
+
+<body>
+<button class="btn-voltar" onclick="window.location.href='index.html'">⬅ Voltar ao Início</button>
+
+<div class="container">
+
+<h1>🌍 Quiz de Bandeiras</h1>
+
+<div id="jogo">
+
+<div class="topo">
+
+<div class="card">
+❤️ Vidas
+<h2 id="vidas">3</h2>
+</div>
+
+<div class="card">
+⭐ Pontos
+<h2 id="pontos">0</h2>
+</div>
+
+<div class="card">
+⏱ Tempo
+<h2 id="tempo">15</h2>
+</div>
+
+<div class="card">
+📍 Pergunta
+<h2 id="numero">1/30</h2>
+</div>
+
+</div>
+
+<div id="barra">
+<div id="progresso"></div>
+</div>
+
+<img id="bandeira">
+
+<div id="opcoes"></div>
+
+<p id="resultado"></p>
+
+<button id="proximo">
+Próxima Pergunta
+</button>
+
+</div>
+
+<div id="fim">
+
+<h1>🏆 Fim do Quiz</h1>
+
+<h2 id="placarFinal"></h2>
+
+<h3 id="desempenho"></h3>
+
+<button onclick="location.reload()">
+
+Jogar Novamente
+
+</button>
+
+</div>
+
+<script>
+
+//
+
+let perguntas=[]; // lista de perguntas
+
+let indice=0; // pergunta atual
+
+let pontos=0; // acertos do jogador
+
+let vidas=3; // tentativas disponíveis
+
+let tempo=15; // segundos por pergunta
+
+let cronometro; // guarda o timer, ainda indefinido
+
+let respondeu=false; // trava para evitar responder duas vezes a mesma pergunta
+
+
+// recebe um array e devolve o mesmo array com a ordem embaralhada.
+
+function embaralhar(array){
+
+    return array.sort(()=>Math.random()-0.5);
+
+}
+
+
+// zera e monta a partida no botão de começar: índice na primeira pergunta, pontos em zero, 3 vidas
+// e já escreve vidas e pontos na tela. Embaralha as perguntas e corta só as 10 primeiras. 
+// Chama carregarPergunta() para exibir a primeira.
+
+function iniciarJogo(){
+
+    indice=0;
+    pontos=0;
+    vidas=3;
+
+    document.getElementById("vidas").innerText=vidas;
+    document.getElementById("pontos").innerText=pontos;
+
+    // Embaralha as perguntas
+    perguntas=embaralhar(perguntas).slice(0,10);
+
+    carregarPergunta();
+
+}
+
+// reinicia o estado de cada rodada e monta a tela da pergunta atual: destrava a pergunta; reinicia o relógio;
+// ata o timer da rodada anterior antes de criar outro. Sem isso, 
+// os timers se acumulariam e o tempo cairia cada vez mais rápido. Escreve o tempo na tela, 
+// pega a pergunta do índice atual e joga a imagem dela na #bandeira. #numero mostra "3/10".
+// mostra o quanto já percorreu, não incluindo a pergunta atual.
+
+function carregarPergunta(){
+
+    respondeu=false;
+
+    tempo=15;
+
+    clearInterval(cronometro);
+
+
+    document.getElementById("tempo").innerText=tempo;
+
+
+    let pergunta=perguntas[indice];
+
+
+    document.getElementById("bandeira").src=pergunta.img;
+
+
+    document.getElementById("numero").innerText=
+    `${indice+1}/${perguntas.length}`;
+
+
+    document.getElementById("progresso").style.width=
+    `${((indice)/perguntas.length)*100}%`;
+
+
+
+    document.getElementById("resultado").innerText="";
+
+
+    document.getElementById("proximo").style.display="none";
+
+
+
+    let areaOpcoes=document.getElementById("opcoes");
+
+
+    areaOpcoes.innerHTML="";
+
+
+    // reinicia a rodada, carrega a imagem da pergunta atual na bandeira, atualiza número e barra de progresso, 
+    // limpa resultado e esconde o botão "próximo", e zera as opções antigas.
+
+    let alternativas=embaralhar(
+        [...pergunta.opcoes]
+    );
+
+
+    alternativas.forEach(opcao=>{
+
+
+        let botao=document.createElement("button");
+
+
+        botao.className="opcao";
+
+
+        botao.innerText=opcao;
+
+
+        botao.onclick=function(){
+
+            responder(opcao,botao);
+
+        };
+
+
+        areaOpcoes.appendChild(botao);
+
+
+    });
+
+
+    iniciarTempo();
+
+}
+
+
+
+// cria o cronômetro que roda a cada 1 segundo: diminui tempo, atualiza a tela e, ao chegar a zero,
+// para o timer, tira uma vida e mostra a resposta.
+
+function iniciarTempo(){
+
+
+    cronometro=setInterval(()=>{
+
+
+        tempo--;
+
+
+        document.getElementById("tempo").innerText=tempo;
+
+
+
+        if(tempo<=0){
+
+
+            clearInterval(cronometro);
+
+
+            perderVida();
+
+
+            mostrarResposta();
+
+        }
+
+
+    },1000);
+
+
+}
+
+
+// trava contra clique duplo, para o cronômetro, desabilita as alternativas e pinta a correta de verde; 
+// se acertou soma 10 pontos e mostra "correta", se errou marca.
+// errada e tira uma vida; atualiza pontos/vidas e revela o botão
+
+
+function responder(resposta,botao){
+
+
+    if(respondeu) return;
+
+
+    respondeu=true;
+
+
+    clearInterval(cronometro);
+
+
+
+    let correta=perguntas[indice].correta;
+
+
+    let botoes=document.querySelectorAll(".opcao");
+
+
+    botoes.forEach(b=>{
+
+        b.disabled=true;
+
+
+        if(b.innerText===correta){
+
+            b.classList.add("correta");
+
+        }
+
+    });
+
+
+
+    if(resposta===correta){
+
+
+        botao.classList.add("correta");
+
+
+        pontos+=10;
+
+
+        document.getElementById("resultado").innerText=
+        "✅ Resposta correta!";
+
+
+    }else{
+
+
+        botao.classList.add("errada");
+
+
+        perderVida();
+
+
+        document.getElementById("resultado").innerText=
+        "❌ Resposta errada!";
+
+
+    }
+
+
+    document.getElementById("pontos").innerText=pontos;
+
+
+    document.getElementById("vidas").innerText=vidas;
+
+
+    document.getElementById("proximo").style.display="block";
+
+
+}
+
+// tira uma vida, escreve o novo valor na tela e, se chegou a zero, chama finalizar().
+
+function perderVida(){
+
+
+    vidas--;
+
+
+    document.getElementById("vidas").innerText=vidas;
+
+
+    if(vidas<=0){
+
+
+        finalizar();
+
+
+    }
+
+
+}
+
+
+// quando o tempo acaba, mostra "⏰ Tempo acabou! Era: [resposta]", desabilita as alternativas,
+// pinta a correta de verde e revela o botão #proximo.
+
+function mostrarResposta(){
+
+
+    let correta=perguntas[indice].correta;
+
+
+    document.getElementById("resultado").innerText=
+    "⏰ Tempo acabou! Era: "+correta;
+
+
+    let botoes=document.querySelectorAll(".opcao");
+
+
+    botoes.forEach(botao=>{
+
+
+        botao.disabled=true;
+
+
+        if(botao.innerText===correta){
+
+            botao.classList.add("correta");
+
+        }
+
+
+    });
+
+
+
+    document.getElementById("proximo").style.display="block";
+
+
+}
+
+// soma 1 ao índice e, se ainda houver pergunta, carrega a próxima; se acabaram, chama finalizar()
+
+document.getElementById("proximo").onclick=function(){
+
+
+    indice++;
+
+
+    if(indice < perguntas.length){
+
+
+        carregarPergunta();
+
+
+    }else{
+
+
+        finalizar();
+
+
+    }
+
+
+};
+
+// banco com 29 bandeiras: cada item tem img, correta e quatro opcoes. Sem duplicatas e 
+// a correta sempre está entre as opções. Como o iniciarJogo() corta as 10 primeiras após embaralhar, 
+// cada partida sorteia 10 dessas 29.
+
+perguntas = [
+
+{
+img:"https://flagcdn.com/w320/br.png",
+correta:"Brasil",
+opcoes:["Brasil","Argentina","Portugal","México"]
+},
+
+{
+img:"https://flagcdn.com/w320/ar.png",
+correta:"Argentina",
+opcoes:["Chile","Argentina","Uruguai","Paraguai"]
+},
+
+{
+img:"https://flagcdn.com/w320/us.png",
+correta:"Estados Unidos",
+opcoes:["Canadá","Estados Unidos","Austrália","Inglaterra"]
+},
+
+{
+img:"https://flagcdn.com/w320/ca.png",
+correta:"Canadá",
+opcoes:["Canadá","Estados Unidos","Noruega","Suécia"]
+},
+
+{
+img:"https://flagcdn.com/w320/mx.png",
+correta:"México",
+opcoes:["México","Brasil","Espanha","Peru"]
+},
+
+{
+img:"https://flagcdn.com/w320/fr.png",
+correta:"França",
+opcoes:["França","Itália","Alemanha","Bélgica"]
+},
+
+{
+img:"https://flagcdn.com/w320/de.png",
+correta:"Alemanha",
+opcoes:["Alemanha","Áustria","Holanda","Suíça"]
+},
+
+{
+img:"https://flagcdn.com/w320/es.png",
+correta:"Espanha",
+opcoes:["Portugal","Espanha","França","Itália"]
+},
+
+{
+img:"https://flagcdn.com/w320/it.png",
+correta:"Itália",
+opcoes:["Itália","Grécia","França","Croácia"]
+},
+
+{
+img:"https://flagcdn.com/w320/pt.png",
+correta:"Portugal",
+opcoes:["Brasil","Portugal","Espanha","Angola"]
+},
+
+{
+img:"https://flagcdn.com/w320/gb.png",
+correta:"Reino Unido",
+opcoes:["Estados Unidos","Austrália","Reino Unido","Canadá"]
+},
+
+{
+img:"https://flagcdn.com/w320/jp.png",
+correta:"Japão",
+opcoes:["China","Japão","Coreia do Sul","Tailândia"]
+},
+
+{
+img:"https://flagcdn.com/w320/cn.png",
+correta:"China",
+opcoes:["China","Japão","Vietnã","Índia"]
+},
+
+{
+img:"https://flagcdn.com/w320/kr.png",
+correta:"Coreia do Sul",
+opcoes:["Japão","Coreia do Sul","China","Singapura"]
+},
+
+{
+img:"https://flagcdn.com/w320/in.png",
+correta:"Índia",
+opcoes:["Índia","Paquistão","Nepal","Bangladesh"]
+},
+
+{
+img:"https://flagcdn.com/w320/ru.png",
+correta:"Rússia",
+opcoes:["Rússia","Polônia","Ucrânia","Finlândia"]
+},
+
+{
+img:"https://flagcdn.com/w320/au.png",
+correta:"Austrália",
+opcoes:["Austrália","Nova Zelândia","Canadá","África do Sul"]
+},
+
+{
+img:"https://flagcdn.com/w320/nz.png",
+correta:"Nova Zelândia",
+opcoes:["Austrália","Nova Zelândia","Fiji","Samoa"]
+},
+
+{
+img:"https://flagcdn.com/w320/za.png",
+correta:"África do Sul",
+opcoes:["Egito","Nigéria","África do Sul","Quênia"]
+},
+
+{
+img:"https://flagcdn.com/w320/eg.png",
+correta:"Egito",
+opcoes:["Egito","Marrocos","Tunísia","Argélia"]
+},
+
+{
+img:"https://flagcdn.com/w320/se.png",
+correta:"Suécia",
+opcoes:["Suécia","Noruega","Dinamarca","Finlândia"]
+},
+
+{
+img:"https://flagcdn.com/w320/no.png",
+correta:"Noruega",
+opcoes:["Noruega","Suécia","Islândia","Suíça"]
+},
+
+{
+img:"https://flagcdn.com/w320/fi.png",
+correta:"Finlândia",
+opcoes:["Finlândia","Suécia","Rússia","Estônia"]
+},
+
+{
+img:"https://flagcdn.com/w320/ch.png",
+correta:"Suíça",
+opcoes:["Suíça","Áustria","Alemanha","Bélgica"]
+},
+
+{
+img:"https://flagcdn.com/w320/nl.png",
+correta:"Holanda",
+opcoes:["Holanda","Bélgica","França","Luxemburgo"]
+},
+
+{
+img:"https://flagcdn.com/w320/be.png",
+correta:"Bélgica",
+opcoes:["Bélgica","Holanda","Alemanha","França"]
+},
+
+{
+img:"https://flagcdn.com/w320/cl.png",
+correta:"Chile",
+opcoes:["Chile","Argentina","Peru","Bolívia"]
+},
+
+{
+img:"https://flagcdn.com/w320/co.png",
+correta:"Colômbia",
+opcoes:["Colômbia","Venezuela","Equador","Peru"]
+},
+
+{
+img:"https://flagcdn.com/w320/uy.png",
+correta:"Uruguai",
+opcoes:["Uruguai","Argentina","Chile","Paraguai"]
+}
+
+];
+
+// para o cronômetro, esconde #jogo e mostra #fim, calcula a porcentagem, define a medalha por faixa 
+// e escreve placar e medalha na tela.
+
+function finalizar(){
+
+    clearInterval(cronometro);
+
+
+    document.getElementById("jogo").style.display="none";
+
+    document.getElementById("fim").style.display="block";
+
+
+    let total=perguntas.length;
+
+
+    let porcentagem=Math.round(
+        (pontos/(total*10))*100
+    );
+
+
+    let medalha="";
+
+
+    if(porcentagem>=90){
+
+        medalha="🥇 Ouro - Excelente!";
+
+    }else if(porcentagem>=70){
+
+        medalha="🥈 Prata - Muito bom!";
+
+    }else if(porcentagem>=50){
+
+        medalha="🥉 Bronze - Continue treinando!";
+
+    }else{
+
+        medalha="❌ Sem medalha - Tente novamente!";
+
+    }
+
+
+
+    document.getElementById("placarFinal").innerHTML=
+
+    `
+    Pontuação: ${pontos}<br>
+    Acertos aproximados: ${porcentagem}%<br>
+    `;
+
+
+
+    document.getElementById("desempenho").innerHTML=
+
+    `
+    ${medalha}
+    `;
+
+
+
+    // busca o recorde no localStorage, salva se o placar atual for maior e acrescenta a linha
+    // "🏆 Recorde: X pontos" na #desempenho.
+
+    let recorde=localStorage.getItem("recordeQuiz");
+
+
+    if(!recorde || pontos>recorde){
+
+        localStorage.setItem(
+            "recordeQuiz",
+            pontos
+        );
+
+        recorde=pontos;
+
+    }
+
+
+
+    document.getElementById("desempenho").innerHTML +=
+
+    `
+    <br>
+    🏆 Recorde: ${recorde} pontos
+    `;
+
+
+}
+
+// Começar o jogo
+
+iniciarJogo();
+
+</script>
+
+</body>
+</html>
